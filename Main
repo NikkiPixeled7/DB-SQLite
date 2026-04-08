@@ -1,57 +1,36 @@
-import Main
+import sqlite3
+def connect():
+    return sqlite3.connect("data.db")
 
-menu_prompt = """-- Coffee Bean App --
+create_beans_table = "CREATE TABLE IF NOT EXISTS beans (id INTEGER PRIMARY KEY, name TEXT, method TEXT, rating INTEGER);"
 
-Please choose one of these options:
+insert_bean = "INSERT INTO beans (name, method, rating) VALUES (?, ?, ?);"
 
-1) Add a new bean.
-2) See all beans.
-3) Find a bean by name.
-4) See which preparation method is best for a bean.
-5) Exit.
+get_all_beans1 = "SELECT * FROM beans;"
+get_beans_by_name1 = "SELECT * FROM beans WHERE name = ?;"
+get_best_preparation_for_bean1 = """
+SELECT * FROM beans
+WHERE name = ?
+ORDER BY rating DESC
+LIMIT 1;"""
 
-Your selection: """
 
-def prompt_add_new_bean(connection):
-    name = input("Enter bean name: ")
-    method = input("Enter how you've prepared it: ")
-    rating = int(input("Enter your rating score (0-100): "))
+def create_tables(connection):
+    with connection:
+        connection.execute(create_beans_table)
 
-    Main.add_bean(connection, name, method, rating)
+def add_bean(connection, name, method, rating):
+    with connection:
+        connection.execute(insert_bean, (name, method, rating))
 
-def prompt_see_all_beans(connection):
-    beans = Main.get_all_beans(connection)
+def get_all_beans(connection):
+    with connection:
+        return connection.execute(get_all_beans1).fetchall()
 
-    for bean in beans:
-        print(f"{bean[1]} ({bean[2]}) - {bean[3]}/100")
+def get_beans_by_name(connection, name):
+    with connection:
+        return connection.execute(get_beans_by_name1, (name,)).fetchall()
 
-def prompt_find_bean(connection):
-    name = input("Enter bean name to find: ")
-    beans = Main.get_beans_by_name(connection, name)
-
-    for bean in beans:
-        print(f"{bean[1]} ({bean[2]}) - {bean[3]}/100")
-
-def prompt_find_best_method(connection):
-    name = input("Enter bean name to find: ")
-    best_method = Main.get_best_preparation_for_bean(connection, name)
-
-    print(print(f"The best preparation method for {name} is {best_method[2]}"))
-
-def menu():
-    connection = Main.connect()
-    Main.create_tables(connection)
-
-    while(user_input := input(menu_prompt)) != "5":
-        if user_input == "1":
-            prompt_add_new_bean(connection)
-        elif user_input == "2":
-            prompt_see_all_beans(connection)
-        elif user_input == "3":
-            prompt_find_bean(connection)
-        elif user_input == "4":
-            prompt_find_best_method(connection)
-        else:
-            print("Invalid input, please try again!")
-
-menu()
+def get_best_preparation_for_bean(connection, name):
+    with connection:
+        return connection.execute(get_best_preparation_for_bean1, (name,)).fetchone()
