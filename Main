@@ -7,8 +7,10 @@ create_beans_table = "CREATE TABLE IF NOT EXISTS beans (id INTEGER PRIMARY KEY, 
 insert_bean = "INSERT INTO beans (name, method, rating) VALUES (?, ?, ?);"
 
 delete_bean_by_name1 = "DELETE FROM beans WHERE name = ?;"
+delete_bean_by_id1 = "DELETE FROM beans WHERE id = ?;"
 get_all_beans1 = "SELECT * FROM beans;"
 get_beans_by_name1 = "SELECT * FROM beans WHERE name = ?;"
+get_beans_by_id1 = "SELECT * FROM beans WHERE id = ?;"
 get_best_preparation_for_bean1 = """
 SELECT * FROM beans
 WHERE name = ?
@@ -32,6 +34,10 @@ def get_beans_by_name(connection, name):
     with connection:
         return connection.execute(get_beans_by_name1, (name,)).fetchall()
 
+def get_beans_by_id(connection, id):
+    with connection:
+        return connection.execute(get_beans_by_id1, (id,)).fetchall()
+
 def get_best_preparation_for_bean(connection, name):
     with connection:
         return connection.execute(get_best_preparation_for_bean1, (name,)).fetchone()
@@ -39,3 +45,7 @@ def get_best_preparation_for_bean(connection, name):
 def delete_bean_by_name(connection, name):
     with connection:
         connection.execute(delete_bean_by_name1, (name, ))
+
+def delete_bean_by_id(connection, id):
+    with connection:
+        connection.execute(delete_bean_by_id1, (id, ))
