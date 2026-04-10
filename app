@@ -57,14 +57,41 @@ def prompt_find_best_method(connection):
     name = input("Enter bean name to find: ")
     best_method = Main.get_best_preparation_for_bean(connection, name)
 
-    print(print(f"The best preparation method for {name} is {best_method[2]}"))
+    print(f"The best preparation method for {name} is {best_method[2]}")
 
 def prompt_delete_bean_id(connection):
-    pass
+    beans = Main.get_all_beans(connection)
+    print("Available Bean IDs:")
+    for bean in beans:
+        print(bean[0])
+    while True:
+        id = input("Enter bean id to delete (L to leave): ")
+        if id == "L" or id == "l":
+            break
+        beans = Main.get_beans_by_id(connection, id)
+        if not beans:
+            print("No bean found. Try again\n")
+            continue
+
+        continue1 = input("Are you sure you want to delete " + str(id) + "? (Y/N): ")
+        if continue1 == "Y" or continue1 == "y":
+            Main.delete_bean_by_id(connection, id)
+            print(str(id) + " Was Deleted.")
+            break
+        elif continue1 == "N" or continue1 == "n":
+            pass
+        else:
+            print("Invalid input, try again!")
 
 def prompt_delete_bean_name(connection):
+    beans = Main.get_all_beans(connection)
+    print("Available Bean Names:")
+    for bean in beans:
+        print(bean[1])
     while True:
-        name = input("Enter bean name to delete: ")
+        name = input("Enter bean name to delete (L to leave): ")
+        if name == "L" or name == "l":
+            break
         beans = Main.get_beans_by_name(connection, name)
 
         if not beans:
@@ -73,13 +100,15 @@ def prompt_delete_bean_name(connection):
 
         continue1 = input("Are you sure you want to delete " + str(name) + "? (Y/N): ")
         if continue1 == "Y" or continue1 == "y":
+            Main.delete_bean_by_name(connection, name)
             print(str(name) + " Was Deleted.")
             break
         elif continue1 == "N" or continue1 == "n":
             pass
+        elif continue1 == "L" or continue1 == "l":
+            break
         else:
             print("Invalid input, try again!")
-        delete_bean = Main.delete_bean_by_name(connection, name)
 
 def which_bean(connection):
     while(user_input := input(del_bean)) != "3":
