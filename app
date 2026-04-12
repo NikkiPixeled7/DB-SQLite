@@ -10,7 +10,8 @@ Please choose one of these options:
 3) Find a bean by name.
 4) See which preparation method is best for a bean.
 5) Delete Bean.
-6) Exit.
+6) Find beans by rating.
+7) Exit.
 
 Your selection: """
 
@@ -110,6 +111,22 @@ def prompt_delete_bean_name(connection):
         else:
             print("Invalid input, try again!")
 
+def prompt_beans_by_rating(connection):
+    try:
+        min_rating = int(input("Minimum rating: "))
+        max_rating = int(input("Maximum rating: "))
+    except ValueError:
+        print("Enter a valid input.")
+        return
+
+    beans = Main.get_beans_by_rating_range(connection, min_rating, max_rating)
+
+    if not beans:
+        print("No bean found in that range. Try again\n")
+    else:
+        for bean in beans:
+            print(f"{bean[1]} ({bean[2]}) - {bean[3]}/100")
+
 def which_bean(connection):
     while(user_input := input(del_bean)) != "3":
         if user_input == "1":
@@ -123,7 +140,7 @@ def menu():
     connection = Main.connect()
     Main.create_tables(connection)
 
-    while(user_input := input(menu_prompt)) != "6":
+    while(user_input := input(menu_prompt)) != "7":
         if user_input == "1":
             prompt_add_new_bean(connection)
         elif user_input == "2":
@@ -134,6 +151,8 @@ def menu():
             prompt_find_best_method(connection)
         elif user_input == "5":
             which_bean(connection)
+        elif user_input == "6":
+            prompt_beans_by_rating(connection)
         else:
             print("Invalid input, please try again!")
 
