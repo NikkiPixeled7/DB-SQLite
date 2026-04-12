@@ -1,0 +1,159 @@
+import Main
+
+menu_prompt = """
+-- Game App --
+
+Please choose one of these options:
+
+1) Add a new game.
+2) See all games.
+3) Find a game by name.
+4) See which genre is best for a game.
+5) Delete Game.
+6) Find games by rating.
+7) Exit.
+
+Your selection: """
+
+del_game = """
+-- Game App --
+
+Please choose one of these options:
+
+1) Delete By ID.
+2) Delete By Name.
+3) Exit.
+
+Your selection: """
+
+def prompt_add_new_game(connection):
+    name = input("Enter game name: ")
+    genre = input("Enter game genre: ")
+    while True:
+        try:
+            rating = int(input("Enter your rating score (0-100): "))
+        except ValueError:
+            print("Enter a number.. ")
+        else:
+            break
+        finally:
+            pass
+
+    Main.add_game(connection, name, genre, rating)
+
+def prompt_see_all_games(connection):
+    games = Main.get_all_games(connection)
+
+    for game in games:
+        print(f"{game[1]} ({game[2]}) - {game[3]}/100")
+
+def prompt_find_game(connection):
+    name = input("Enter game name to find: ")
+    games = Main.get_games_by_name(connection, name)
+
+    for game in games:
+        print(f"{game[1]} ({game[2]}) - {game[3]}/100")
+
+def prompt_find_best_genre(connection):
+    name = input("Enter game name to find: ")
+    best_genre = Main.get_best_genre_for_game(connection, name)
+
+    print(f"The best genre for {name} is {best_genre[2]}")
+
+def prompt_delete_game_id(connection):
+    games = Main.get_all_games(connection)
+    print("Available Game IDs:")
+    for game in games:
+        print(game[0])
+    while True:
+        id = input("Enter game id to delete (L to leave): ")
+        if id == "L" or id == "l":
+            break
+        games = Main.get_games_by_id(connection, id)
+        if not games:
+            print("No game found. Try again\n")
+            continue
+
+        continue1 = input("Are you sure you want to delete " + str(id) + "? (Y/N): ")
+        if continue1 == "Y" or continue1 == "y":
+            Main.delete_game_by_id(connection, id)
+            print(str(id) + " Was Deleted.")
+            break
+        elif continue1 == "N" or continue1 == "n":
+            pass
+        else:
+            print("Invalid input, try again!")
+
+def prompt_delete_game_name(connection):
+    games = Main.get_all_games(connection)
+    print("Available Game Names:")
+    for game in games:
+        print(game[1])
+    while True:
+        name = input("Enter game name to delete (L to leave): ")
+        if name == "L" or name == "l":
+            break
+        games = Main.get_games_by_name(connection, name)
+
+        if not games:
+            print("No game found. Try again\n")
+            continue
+
+        continue1 = input("Are you sure you want to delete " + str(name) + "? (Y/N): ")
+        if continue1 == "Y" or continue1 == "y":
+            Main.delete_game_by_name(connection, name)
+            print(str(name) + " Was Deleted.")
+            break
+        elif continue1 == "N" or continue1 == "n":
+            pass
+        elif continue1 == "L" or continue1 == "l":
+            break
+        else:
+            print("Invalid input, try again!")
+
+def prompt_games_by_rating(connection):
+    try:
+        min_rating = int(input("Minimum rating: "))
+        max_rating = int(input("Maximum rating: "))
+    except ValueError:
+        print("Enter a valid input.")
+        return
+
+    games = Main.get_games_by_rating_range(connection, min_rating, max_rating)
+
+    if not games:
+        print("No game found in that range. Try again\n")
+    else:
+        for game in games:
+            print(f"{game[1]} ({game[2]}) - {game[3]}/100")
+
+def which_game(connection):
+    while(user_input := input(del_game)) != "3":
+        if user_input == "1":
+            prompt_delete_game_id(connection)
+        elif user_input == "2":
+            prompt_delete_game_name(connection)
+        else:
+            print("Invalid input, please try again!")
+
+def menu():
+    connection = Main.connect()
+    Main.create_tables(connection)
+
+    while(user_input := input(menu_prompt)) != "7":
+        if user_input == "1":
+            prompt_add_new_game(connection)
+        elif user_input == "2":
+            prompt_see_all_games(connection)
+        elif user_input == "3":
+            prompt_find_game(connection)
+        elif user_input == "4":
+            prompt_find_best_genre(connection)
+        elif user_input == "5":
+            which_game(connection)
+        elif user_input == "6":
+            prompt_games_by_rating(connection)
+        else:
+            print("Invalid input, please try again!")
+
+menu()
