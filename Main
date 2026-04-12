@@ -16,7 +16,10 @@ SELECT * FROM beans
 WHERE name = ?
 ORDER BY rating DESC
 LIMIT 1;"""
-
+get_beans_by_rating_range1 = """
+SELECT * FROM beans
+WHERE rating BETWEEN ? AND ?
+ORDER BY rating DESC"""
 
 def create_tables(connection):
     with connection:
@@ -49,3 +52,7 @@ def delete_bean_by_name(connection, name):
 def delete_bean_by_id(connection, id):
     with connection:
         connection.execute(delete_bean_by_id1, (id, ))
+
+def get_beans_by_rating_range(connection, min_range, max_range):
+    with connection:
+        return connection.execute(get_beans_by_rating_range1, (min_range, max_range)).fetchall()
